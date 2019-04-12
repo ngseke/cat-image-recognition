@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/seanyellow/cat-image-recognition#readme",
   "dependencies": {
+    "@tensorflow/tfjs": "^1.0.4",
     "model": "^6.0.1",
     "vue": "^2.6.10",
     "vue-hot-reload-api": "^2.3.3"

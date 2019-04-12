@@ -1,12 +1,12 @@
 <template lang="pug">
-.container 
+.container
 	| Hello123d {{bundler}}
-	Train
+	| YAYAYAYA
 </template>
 
 <script>
 import Vue from 'vue'
-import Train from './train.vue'
+import model from './assets/model'
 
 export default Vue.extend({
   data () {
@@ -15,11 +15,8 @@ export default Vue.extend({
     }
   },
   mounted () {
-		console.log("mouted")
-	},
-	components: {
-		Train
-	}
+		console.log(model.buildDiscriminator())
+  },
 })
 </script>
 
