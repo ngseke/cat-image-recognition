@@ -1,0 +1,32 @@
+{
+  "name": "cat-image-recognition",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seanyellow/cat-image-recognition.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/seanyellow/cat-image-recognition/issues"
+  },
+  "homepage": "https://github.com/seanyellow/cat-image-recognition#readme",
+  "dependencies": {
+    "model": "^6.0.1",
+    "vue": "^2.6.10",
+    "vue-hot-reload-api": "^2.3.3"
+  },
+  "devDependencies": {
+    "@vue/component-compiler-utils": "^3.0.0",
+    "cssnano": "^4.1.10",
+    "pug": "^2.0.3",
+    "sass": "^1.18.0",
+    "vue-template-compiler": "^2.6.10"
+  }
+}
