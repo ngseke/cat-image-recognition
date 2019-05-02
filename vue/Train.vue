@@ -25,12 +25,14 @@ export default Vue.extend({
     return {
       file: null,
       images: [],
+      log: [],
     }
   },
   mounted () {
   },
   methods: {
     fileChange (event) {
+      this.images = []  // 清空圖片物件陣列
       const files = event.target.files
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
@@ -42,6 +44,7 @@ export default Vue.extend({
         }
         this.images.push(img)
       }
+      console.log(this.images)
     },
   }
 })
