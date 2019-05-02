@@ -5,7 +5,7 @@ div recog.
 
 <script>
 import Vue from 'vue'
-import model from '../assets/model'
+import model from '../assets/js/model'
 
 export default Vue.extend({
   data () {
