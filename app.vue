@@ -2,22 +2,17 @@
 div
   nav.navbar.navbar-expand.navbar-dark.bg-dark
     .container
-      a.navbar-brand(href='#' @click='page = `index`') 🐱
+      router-link.navbar-brand(to='/') 🐱
       #navbar.navbar-collapse
         ul.navbar-nav.mr-auto
           li.nav-item(v-for='i in navbar')
-            a.nav-link(href='#' @click='page = i.page' :class='getNavbarClass(i.page)') {{ i.name }}
+            router-link.nav-link(:to='{ name: i.page }') {{ i.name }}
   main.mt-3
-    Index(v-if='page === `index`')
-    Train(v-else-if='page === `train`')
-    Recognition(v-else-if='page === `recognition`')
+    router-view
 </template>
 
 <script>
 import Vue from 'vue'
-import Index from './vue/Index.vue'
-import Train from './vue/Train.vue'
-import Recognition from './vue/Recognition.vue'
 
 export default Vue.extend({
   data () {
@@ -31,18 +26,8 @@ export default Vue.extend({
   },
   mounted () {
 	},
-  methods: {
-    getNavbarClass (_) {
-      return {
-        active: this.page === _
-      }
-    }
+  methods: { 
   },
-	components: {
-    Index,
-		Train,
-    Recognition,
-	}
 })
 </script>
 
