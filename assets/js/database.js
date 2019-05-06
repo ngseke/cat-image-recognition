@@ -38,7 +38,7 @@ const pushNewModel = async (model) => {
   modelRef.child(key).update(model)
   listRef.child(key).update({
     timestamp: +new Date(),
-    length: JSON.stringify(model).length
+    length: JSON.stringify(model).length,
   })
 }
 

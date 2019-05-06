@@ -32,7 +32,7 @@ div
             a(href='#' @click='load(i.id)')  載入
             a.text-danger(href='#' @click='remove(i.id)')  [x]
         .text-secondary(v-else) 存檔列表載入中...
-        button.btn.btn-primary(@click='push') push
+        button.btn.btn-primary(@click='push(model)' v-if='model') 存檔當前 model
       .col-12.col-md-8
         .card
           .card-body
@@ -52,7 +52,7 @@ export default Vue.extend({
       file: null,
       images: [],
       modelList: null,
-      model: false,
+      model: {a:1},
     }
   },
   mounted () {
@@ -74,8 +74,9 @@ export default Vue.extend({
       console.log(this.images)
     },
     // 發佈存檔
-    push () {
-      db.pushNewModel({ a: 1 })
+    push (model) {
+      if (typeof model !== `object`) alert(`存檔失敗`)
+      db.pushNewModel(model)
     },
     // 載入選定存檔
     load (id) {
