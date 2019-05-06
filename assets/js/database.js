@@ -18,9 +18,11 @@ const db = firebase.database()
 const modelRef = db.ref('model/')   // 訓練好的模型本身
 const listRef = db.ref('list/')   // 列表
 
+// 將快照轉換為陣列
 const toArray = (_) => {
+  if (!_) return []
   return Object.keys(_)
-    .sort((a, b) => a < b)
+    .sort().reverse()
     .map((key) => {
       const data = _[key]
       return {
@@ -47,7 +49,24 @@ const onList = (cb) => {
   })
 }
 
+// 根據 id 載入該模型存檔
+const loadModel = (id) => {
+  return new Promise((resolve, reject) => {
+    modelRef.child(id).once('value').then((snapshot) => {
+      resolve(snapshot.val())
+    })
+  })
+}
+
+// 根據 id 移除模型存檔
+const removeModel = async (id) => {
+  await modelRef.child(id).remove()
+  await listRef.child(id).remove()
+}
+
 export default {
   pushNewModel,
   onList,
+  loadModel,
+  removeModel,
 }

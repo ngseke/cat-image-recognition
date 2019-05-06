@@ -21,15 +21,23 @@ div
       .col-3.col-md-2.mb-1(v-for='i in images')
         img.img-fluid(:src='i.src')
 
+  hr
   .container
-
-    h6 存檔列表
-    ul(v-if='modelList')
-      li(v-for='(i, index) in modelList')
-        | {{ formatTimestamp(i.timestamp) }} ({{ i.length }} 個字)
-        span.text-primary {{ i.id }}
-    .text-secondary(v-else) 存檔列表載入中...
-    button.btn.btn-primary(@click='push') push
+    .row
+      .col-12.col-md
+        h6 存檔列表
+        ul.save-list(v-if='modelList')
+          li(v-for='(i, index) in modelList' :key='i.id')
+            | {{ formatTimestamp(i.timestamp) }} ({{ i.length }} 個字)
+            a(href='#' @click='load(i.id)')  載入
+            a.text-danger(href='#' @click='remove(i.id)')  [x]
+        .text-secondary(v-else) 存檔列表載入中...
+        button.btn.btn-primary(@click='push') push
+      .col-12.col-md-8
+        .card
+          .card-body
+            code(v-if='model') {{ model }}
+            div(v-else-if='model === null') 載入中...
 </template>
 
 <script>
@@ -44,6 +52,7 @@ export default Vue.extend({
       file: null,
       images: [],
       modelList: null,
+      model: false,
     }
   },
   mounted () {
@@ -64,21 +73,41 @@ export default Vue.extend({
 
       console.log(this.images)
     },
+    // 發佈存檔
     push () {
-      db.pushNewModel({a: 1})
+      db.pushNewModel({ a: 1 })
     },
+    // 載入選定存檔
+    load (id) {
+      this.model = null
+      db.loadModel(id).then((_) => this.model = _)
+    },
+    // 移除選定存檔
+    remove (id) {
+      db.removeModel(id)
+    },
+    // 監聽列表
     onList () {
       db.onList((data) => {
         this.modelList = data
       })
     },
     formatTimestamp (_) {
-      return _ ? dayjs(_).format('YYYY年MM月DD日 HH:mm:ss') : `invalid timestamp`
+      return _ ? dayjs(_).format('YY年MM月DD日 HH:mm:ss') : `invalid timestamp`
     }
   }
 })
 </script>
 
 <style lang="sass" scoped>
+@keyframes new-item
+  from
+    color: yellow
+  to
 
+.save-list
+  // max-height: 10rem
+  overflow: scroll
+  li
+    animation: new-item 5s
 </style>
