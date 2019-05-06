@@ -1,6 +1,7 @@
 <!-- 辨識頁面 -->
 <template lang="pug">
-div recog.
+div
+  .container 辨識
 </template>
 
 <script>
