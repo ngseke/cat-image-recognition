@@ -2,10 +2,15 @@
 <template lang="pug">
 div
   h6 存檔列表
-  button.btn.btn-primary(@click='push(value)' v-if='value') 存檔當前 model
+  .input-group.mb-3
+    input.form-control(type='text' placeholder='檔名' v-model='name')
+    .input-group-append
+      button.btn.btn-primary(type='button' @click='push(value)' :disabled='!value') 存檔當前 model
+
   ul.save-list(v-if='modelList')
     li(v-for='(i, index) in modelList' :key='i.id')
-      | {{ formatTimestamp(i.timestamp) }} ({{ i.length }} 個字)
+      span.text-primary {{ i.name || `未命名` }}
+      small  | {{ formatTimestamp(i.timestamp) }} ({{ i.length }} 個字)
       a(href='#' @click='load(i.id)')  載入
       a.text-danger(href='#' @click='remove(i.id)')  [x]
   .text-secondary(v-else) 載入中...
@@ -20,6 +25,7 @@ export default Vue.extend({
   data () {
     return {
       modelList: null,
+      name: null,
     }
   },
   props: { value: Object },
@@ -31,7 +37,8 @@ export default Vue.extend({
     // 發佈存檔
     push (model) {
       if (typeof model !== `object`) alert(`存檔失敗`)
-      db.pushNewModel(model)
+      db.pushNewModel(model, { name: this.name })
+      this.name = ``
     },
     // 載入選定存檔
     load (id) {
@@ -49,7 +56,7 @@ export default Vue.extend({
       })
     },
     formatTimestamp (_) {
-      return _ ? dayjs(_).format('YY年MM月DD日 HH:mm:ss') : `invalid timestamp`
+      return _ ? dayjs(_).format('YY年M月D日 HH:mm:ss') : `invalid timestamp`
     }
   }
 })

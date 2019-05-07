@@ -33,12 +33,13 @@ const toArray = (_) => {
 }
 
 // 上傳新的 model
-const pushNewModel = async (model) => {
+const pushNewModel = async (model, { name } ) => {
   const key = modelRef.push().key
   modelRef.child(key).update(model)
   listRef.child(key).update({
     timestamp: +new Date(),
     length: JSON.stringify(model).length,
+    name
   })
 }
 
