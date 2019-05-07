@@ -25,14 +25,8 @@ div
   .container
     .row
       .col-12.col-md
-        h6 存檔列表
-        ul.save-list(v-if='modelList')
-          li(v-for='(i, index) in modelList' :key='i.id')
-            | {{ formatTimestamp(i.timestamp) }} ({{ i.length }} 個字)
-            a(href='#' @click='load(i.id)')  載入
-            a.text-danger(href='#' @click='remove(i.id)')  [x]
-        .text-secondary(v-else) 存檔列表載入中...
-        button.btn.btn-primary(@click='push(model)' v-if='model') 存檔當前 model
+        ModelLoader(v-model='model')
+
       .col-12.col-md-8
         .card
           .card-body
@@ -43,7 +37,7 @@ div
 <script>
 import Vue from 'vue'
 import model from '../assets/js/model'
-import db from '../assets/js/database'
+import ModelLoader from './ModelLoader.vue'
 import dayjs from 'dayjs'
 
 export default Vue.extend({
@@ -51,12 +45,10 @@ export default Vue.extend({
     return {
       file: null,
       images: [],
-      modelList: null,
-      model: {a:1},
+      model: null,
     }
   },
   mounted () {
-    this.onList()
   },
   methods: {
     fileChange (event) {
@@ -73,42 +65,13 @@ export default Vue.extend({
 
       console.log(this.images)
     },
-    // 發佈存檔
-    push (model) {
-      if (typeof model !== `object`) alert(`存檔失敗`)
-      db.pushNewModel(model)
-    },
-    // 載入選定存檔
-    load (id) {
-      this.model = null
-      db.loadModel(id).then((_) => this.model = _)
-    },
-    // 移除選定存檔
-    remove (id) {
-      db.removeModel(id)
-    },
-    // 監聽列表
-    onList () {
-      db.onList((data) => {
-        this.modelList = data
-      })
-    },
-    formatTimestamp (_) {
-      return _ ? dayjs(_).format('YY年MM月DD日 HH:mm:ss') : `invalid timestamp`
-    }
+  },
+  components: {
+    ModelLoader
   }
 })
 </script>
 
 <style lang="sass" scoped>
-@keyframes new-item
-  from
-    color: yellow
-  to
 
-.save-list
-  // max-height: 10rem
-  overflow: scroll
-  li
-    animation: new-item 5s
 </style>
