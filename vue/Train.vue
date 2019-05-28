@@ -25,7 +25,6 @@ div
   .container
     .row
       .col-12.col-md
-        ModelLoader(v-model='model')
 
       .col-12.col-md-8
         .card
@@ -45,7 +44,6 @@ export default Vue.extend({
     return {
       file: null,
       images: [],
-      model: null,
     }
   },
   mounted () {
@@ -62,8 +60,6 @@ export default Vue.extend({
         img.onload = () => {  }
         this.images.push(img)
       })
-
-      console.log(this.images)
     },
   },
   components: {
