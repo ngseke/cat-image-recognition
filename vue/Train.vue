@@ -11,14 +11,18 @@ div
                 input#inputSelectImage.custom-file-input(type='file' multiple accept="image/gif, image/jpeg, image/png" @change="fileChange")
                 label.custom-file-label(for='inputSelectImage') Choose file
               .input-group-append
-                span.input-group-text Upload
+                span.input-group-text Submit
 
       .col-12
-        .alert.alert-secondary.mb-3  loaded {{ images.length }} images
-        button.btn.btn-primary(@click='') do it
+        template(v-if='isLoadingImages')
+          .alert.alert-info.mb-3 loading images... ({{ progress.current }} / {{ progress.total }})
+          .progress: .progress-bar(:style='{ width: `${percentage}%` }') {{ percentage }}%
+
+        .alert.alert-secondary.mb-3(v-else) {{ images.length }} images loaded
+        //- button.btn.btn-primary(@click='') do it
 
   .container-fluid
-    .row
+    .img-list
       .m-1(v-for='(i, index) in images')
         div [{{ i.id }}] {{ i.target }}
         .img-area
@@ -31,6 +35,7 @@ import Vue from 'vue'
 import model from '../assets/js/model'
 import dayjs from 'dayjs'
 
+const randomstring = require('randomstring')
 const tf = require('@tensorflow/tfjs')
 
 export default Vue.extend({
@@ -39,6 +44,10 @@ export default Vue.extend({
       file: null,
       images: [],
       isLoadingImages: false,
+      progress: {
+        current: 0,
+        total: 0,
+      },
     }
   },
   mounted () {
@@ -49,22 +58,32 @@ export default Vue.extend({
       const files = event.target.files
       const taskList = []
 
+      this.isLoadingImages = true
+      this.progress = {
+        total: Array.from(files).length,
+        current: 0
+      }
+
       Array.from(files).forEach(file => {
         const url = URL.createObjectURL(file) // 取得 blob url
 
         taskList.push(this.resizeImage(url).then((_) => {
           const img = new Image()
-          const randomstring = require('randomstring')
           img.src = _
-          this.images.push({
-            image: img,
-            id: randomstring.generate(5),
+          return new Promise((resolve, reject) => {
+            img.onload = () => {
+              this.images.push({ image: img, id: randomstring.generate(5) })
+              this.progress.current++
+              resolve()
+            }
           })
-          return true
         }))
       })
 
-      Promise.all(taskList).then(this.setImageEvent)
+      Promise.all(taskList).then(() => {
+        this.isLoadingImages = false
+        this.setImageEvent()
+      })
     },
     // 透過 image-js 變形圖片並回傳
     async resizeImage (_) {
@@ -76,14 +95,14 @@ export default Vue.extend({
     setImageEvent () {
       this.images.map(_ => _.id).forEach(id => {
         const ref = this.$refs[`image-${id}`][0]
-        // 按下
+        // 按下事件
         ref.onmousedown = (evt) => {
           const [x1, y1] = [evt.offsetX, evt.offsetY]
           const index = this.images.findIndex(item => item.id === id)
           this.$set(this.images[index], 'target', { x1, y1 })
         }
 
-        // 放開
+        // 放開事件
         ref.onmouseup = (evt) => {
           const [x2, y2] = [evt.offsetX, evt.offsetY]
           const index = this.images.findIndex(item => item.id === id)
@@ -108,8 +127,17 @@ export default Vue.extend({
       return {}
     }
   },
+  computed: {
+    percentage () {
+      return ((this.progress.current / this.progress.total) * 100).toFixed(1)
+    }
+  },
   watch: {
     images: {
+      deep: true,
+      handler () {}
+    },
+    progress: {
       deep: true,
       handler () {}
     }
@@ -120,6 +148,15 @@ export default Vue.extend({
 </script>
 
 <style lang="sass" scoped>
+*
+  user-select: none
+
+.img-list
+  width: 100%
+  display: flex
+  justify-content: center
+  flex-wrap: wrap
+
 .img-area
   position: relative
   .selection
