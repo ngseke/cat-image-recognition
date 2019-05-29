@@ -5,6 +5,9 @@ div
     .row
       .col-12
         form
+          .form-group.row
+            label.col-auto.col-form-label Width & Height
+            .col: input.form-control(type='tel' v-model='wh')
           .form-group
             .input-group.mb-3
               .custom-file
@@ -19,12 +22,12 @@ div
           .progress: .progress-bar(:style='{ width: `${percentage}%` }') {{ percentage }}%
 
         .alert.alert-secondary.mb-3(v-else) {{ images.length }} images loaded
-        //- button.btn.btn-primary(@click='') do it
+        button.btn.btn-primary(@click='doIt') do it
 
   .container-fluid
     .img-list
-      .m-1(v-for='(i, index) in images')
-        div [{{ i.id }}] {{ i.target }}
+      .item(v-for='(i, index) in images')
+        .info [{{ i.id }}] #[br] {{ i.target }}
         .img-area
           img(:src='i.image.src' :ref='`image-${i.id}`' draggable='false')
           .selection(:style='selectionStyle(i.target)')
@@ -34,6 +37,7 @@ div
 import Vue from 'vue'
 import model from '../assets/js/model'
 import dayjs from 'dayjs'
+import train from '../assets/js/train'
 
 const randomstring = require('randomstring')
 const tf = require('@tensorflow/tfjs')
@@ -48,6 +52,7 @@ export default Vue.extend({
         current: 0,
         total: 0,
       },
+      wh: 300,
     }
   },
   mounted () {
@@ -89,7 +94,7 @@ export default Vue.extend({
     async resizeImage (_) {
       const { Image } = require('image-js') // 在區塊內引入 image-js
 
-      let image = (await Image.load(_)).resize({ width: 300, height: 300 })
+      let image = (await Image.load(_)).resize({ width: this.wh, height: this.wh })
       return await image.toDataURL()
     },
     setImageEvent () {
@@ -125,6 +130,9 @@ export default Vue.extend({
           height: `${target.y2 - target.y1}px`,
         }
       return {}
+    },
+    doIt () {
+      train.訓練(this.images)
     }
   },
   computed: {
@@ -142,12 +150,13 @@ export default Vue.extend({
       handler () {}
     }
   },
-  components: {
-  }
+  components: {}
 })
 </script>
 
 <style lang="sass" scoped>
+$primary: #3abdcb
+
 *
   user-select: none
 
@@ -156,11 +165,24 @@ export default Vue.extend({
   display: flex
   justify-content: center
   flex-wrap: wrap
+  .item
+    position: relative
+    margin: .25rem
+    .info
+      pointer-events: none
+      position: absolute
+      top: 0
+      left: 0
+      z-index: 100
+      color: yellow
+      font-size: .7rem
+      text-shadow: 0 0 10px rgba(black, .9)
 
 .img-area
   position: relative
   .selection
+    pointer-events: none
     position: absolute
-    background-color: rgba(#3abdcb, .5)
-    border: solid #3abdcb 1px
+    background-color: rgba($primary, .5)
+    border: solid $primary 1px
 </style>
