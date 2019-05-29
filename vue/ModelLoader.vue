@@ -66,7 +66,6 @@ export default Vue.extend({
 @keyframes new-item
   from
     color: yellow
-  to
 
 .save-list
   overflow: scroll
