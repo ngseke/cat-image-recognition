@@ -14,7 +14,8 @@ div
                 input#inputSelectImage.custom-file-input(type='file' multiple accept="image/gif, image/jpeg, image/png" @change="fileChange")
                 label.custom-file-label(for='inputSelectImage') Choose file
               .input-group-append
-                span.input-group-text Submit
+                button.btn.btn-primary(type='button' @click='submit') Submit
+
 
       .col-12
         template(v-if='isLoadingImages')
@@ -22,7 +23,7 @@ div
           .progress: .progress-bar(:style='{ width: `${percentage}%` }') {{ percentage }}%
 
         .alert.alert-secondary.mb-3(v-else) {{ images.length }} images loaded
-        button.btn.btn-primary(@click='doIt') do it
+        button.btn.btn-primary(@click="imagePreprocess") Preprocess
 
   .container-fluid
     .img-list
@@ -31,6 +32,10 @@ div
         .img-area
           img(:src='i.image.src' :ref='`image-${i.id}`' draggable='false')
           .selection(:style='selectionStyle(i.target)')
+    hr
+    .row
+      .col
+        canvas#outputTensor3d(ref='outputTensor3d')
 </template>
 
 <script>
@@ -40,7 +45,8 @@ import dayjs from 'dayjs'
 import train from '../assets/js/train'
 
 const randomstring = require('randomstring')
-const tf = require('@tensorflow/tfjs')
+
+import * as tf from '@tensorflow/tfjs'
 
 export default Vue.extend({
   data () {
@@ -53,12 +59,29 @@ export default Vue.extend({
         total: 0,
       },
       wh: 300,
+      ////////////////////////////////////////
+      data: null,
+      builded: false,
+      showNum: 0,
     }
   },
   mounted () {
   },
   methods: {
+    imagePreprocess () {
+      if (!this.builded){
+        this.data = data.imageTransform(this.images, this.images.length)
+        this.builded = true
+      }
+      else
+        if (++this.showNum==this.data.length)
+          this.showNum = 0
+      if (this.data.length>0)
+        tf.browser.toPixels(this.data[this.showNum], this.$refs.outputTensor3d)
+    },
     fileChange (event) {
+      this.showNum = 0
+      this.builded = false
       this.images = []  // 清空圖片物件陣列
       const files = event.target.files
       const taskList = []
@@ -131,8 +154,8 @@ export default Vue.extend({
         }
       return {}
     },
-    doIt () {
-      train.訓練(this.images)
+    submit () {
+      train.訓練(this.inputImages)
     }
   },
   computed: {
@@ -142,7 +165,7 @@ export default Vue.extend({
     },
     // 用於輸入的圖片資料集（處理過的）
     inputImages () {
-      if (!this.images) return
+      if (!this.images) return []
 
       return this.images.map((_) => {
         const data = { ..._ }

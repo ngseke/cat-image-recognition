@@ -54,8 +54,14 @@ const TEST_ITERATION_FREQUENCY = 5
 
 
 const 訓練 = (images) => {
-  const image = images[0].image
-  tf.browser.fromPixels(image).print()
+  images.forEach((item) => {
+    const image = item.image
+    const target = item.target || null
+
+    console.log(target)
+    tf.browser.fromPixels(image).print()
+  })
+
 
 }
 
