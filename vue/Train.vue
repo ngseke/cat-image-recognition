@@ -26,7 +26,7 @@ div
 
   .container-fluid
     .img-list
-      .item(v-for='(i, index) in images')
+      .item(v-for='(i, index) in inputImages')
         .info [{{ i.id }}] #[br] {{ i.target }}
         .img-area
           img(:src='i.image.src' :ref='`image-${i.id}`' draggable='false')
@@ -136,9 +136,21 @@ export default Vue.extend({
     }
   },
   computed: {
+    // 載入圖片進入的 % 數
     percentage () {
       return ((this.progress.current / this.progress.total) * 100).toFixed(1)
-    }
+    },
+    // 用於輸入的圖片資料集（處理過的）
+    inputImages () {
+      if (!this.images) return
+
+      return this.images.map((_) => {
+        const data = { ..._ }
+        const target = data.target
+        if (!(target && Object.keys(target).length >= 4)) delete data.target
+        return data
+      })
+    },
   },
   watch: {
     images: {
