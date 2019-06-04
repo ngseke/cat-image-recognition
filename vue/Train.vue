@@ -47,6 +47,7 @@ import train from '../assets/js/train'
 const randomstring = require('randomstring')
 
 import * as tf from '@tensorflow/tfjs'
+import { returnStatement } from 'babel-types';
 
 export default Vue.extend({
   data () {
@@ -58,8 +59,9 @@ export default Vue.extend({
         current: 0,
         total: 0,
       },
-      wh: 300,
+      wh: 224,
       ////////////////////////////////////////
+      vggModel: null,
       data: null,
       builded: false,
       showNum: 0,
@@ -70,7 +72,7 @@ export default Vue.extend({
   methods: {
     imagePreprocess () {
       if (!this.builded){
-        this.data = data.imageTransform(this.images, this.images.length)
+        this.data = data.imageTransform(this.images, this.wh)
         this.builded = true
       }
       else
@@ -155,7 +157,28 @@ export default Vue.extend({
       return {}
     },
     submit () {
-      train.訓練(this.inputImages)
+      // train.訓練(this.inputImages)
+      // image->img, target->array
+      console.log('start memory:')
+      console.log(tf.memory())
+      const {input, answer} = tf.tidy(() => {
+        let input = this.inputImages.map((item) => { 
+          return tf.browser.fromPixels(item.image)
+        })
+        let answer = this.inputImages.map((item) => {
+          const answer = (!item.target) 
+            ? tf.tensor1d([0, this.wh, 0, this.wh]) 
+            : tf.tensor1d([item.target.x1, item.target.x2, item.target.y1, item.target.y2])
+     
+          return answer
+        })
+        input = tf.stack(input)
+        answer = tf.stack(answer)
+        return {input, answer}
+      })
+      console.log('prepare data memory:')
+      console.log(tf.memory())
+      this.vggModel = train.trainModel(input, answer, this.wh)
     }
   },
   computed: {
