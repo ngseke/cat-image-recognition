@@ -1,7 +1,28 @@
 <!-- 辨識頁面 -->
 <template lang="pug">
 div
-  .container 辨識
+
+  .container
+    h2 Step 1: Load Model
+    button.btn.btn-primary(type='button' @click='loadModel()') Choose File
+    hr
+    h2 Step 2: Load Image
+    form
+      .form-group.row
+        label.col-auto.col-form-label Width & Height
+        .col: input.form-control(type='tel' v-model='wh')
+      .form-group
+        .input-group.mb-3
+          .custom-file
+            input#inputSelectImage.custom-file-input(type='file' accept="image/gif, image/jpeg, image/png" @change="imageChange")
+            label.custom-file-label(for='inputSelectImage') Choose file
+
+  .container-fluid
+    .result(v-if='image')
+      .info
+      .img-area
+        img(:src='image.src')
+        .selection(:style='selectionStyle(i)' v-for='i in result'): .text CAT
 </template>
 
 <script>
@@ -11,6 +32,52 @@ import model from '../assets/js/model'
 export default Vue.extend({
   data () {
     return {
+      wh: 224,
+      image: null,
+      isLoadingImages: false,
+      result: null,
+    }
+  },
+  methods: {
+    loadModel () {
+
+    },
+    imageChange (event) {
+      this.isLoadingImages = true
+      const files = event.target.files
+      const url = URL.createObjectURL(files[0]) // 取得 blob url
+
+      this.resizeImage(url).then((_) => {
+        const img = new Image()
+        img.src = _
+        img.onload = () => {
+          this.image = { image: img, src: _ }
+          this.isLoadingImages = false
+          this.submit()
+        }
+      })
+    },
+    async resizeImage (_) {
+      const { Image } = require('image-js') // 在區塊內引入 image-js
+
+      let image = (await Image.load(_)).resize({ width: this.wh, height: this.wh })
+      return await image.toDataURL()
+    },
+    selectionStyle (target) {
+      if (target && Object.keys(target).length >= 4)
+        return {
+          left: target.x1 + `px`,
+          top: target.y1 + `px`,
+          width: `${target.x2 - target.x1}px`,
+          height: `${target.y2 - target.y1}px`,
+        }
+      return {}
+    },
+    submit () {
+      this.result = [
+        {x1: 50, x2: 90, y1: 50, y2: 90},
+        {x1: 100, x2: 120, y1: 200, y2: 210},
+      ]
     }
   },
   mounted () {
@@ -19,5 +86,26 @@ export default Vue.extend({
 </script>
 
 <style lang="sass" scoped>
+$primary: #fcc135
 
+.result
+  display: flex
+  justify-content: center
+
+  .info
+    font-size: .8rem
+  .img-area
+    transform-origin: top
+    transform: scale(1.5)
+    position: relative
+    .selection
+      position: absolute
+      background-color: rgba($primary, .5)
+      border: solid $primary 1px
+      .text
+        position: absolute
+        top: -1.2rem
+        font-weight: bold
+        color: $primary
+        text-shadow: 0 0 5px black
 </style>
