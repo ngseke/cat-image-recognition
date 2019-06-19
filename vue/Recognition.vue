@@ -27,7 +27,7 @@ div
 
 <script>
 import Vue from 'vue'
-import model from '../assets/js/model'
+import recog from '../assets/js/recognition'
 
 export default Vue.extend({
   data () {
@@ -73,11 +73,13 @@ export default Vue.extend({
         }
       return {}
     },
-    submit () {
-      this.result = [
-        {x1: 50, x2: 90, y1: 50, y2: 90},
-        {x1: 100, x2: 120, y1: 200, y2: 210},
-      ]
+    async submit () {
+      const result = await recog.predict(this.image.image)
+
+      this.result = result.filter(_=>_.class === 'cat').map((_) => {
+        _ = _.bbox
+        return {x1: _[0], y1: _[1], x2: _[2], y2: _[3]}
+      })
     }
   },
   mounted () {
@@ -96,7 +98,6 @@ $primary: #fcc135
     font-size: .8rem
   .img-area
     transform-origin: top
-    transform: scale(1.5)
     position: relative
     .selection
       position: absolute
